@@ -4,7 +4,7 @@ from typing import Optional,List
 from langchain_core.language_models import LLM
 # from api_keys import GEMINI_API_KEY
 import google.generativeai as genai
-import streamlmit as st
+import streamlit as st
 GEMINI_API_KEY=st.st.secrets["GEMINI_API_KEY"]
 genai.configure(api_key=GEMINI_API_KEY)
 class GeminiLLM(LLM):
