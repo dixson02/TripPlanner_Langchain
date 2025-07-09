@@ -9,26 +9,30 @@ import google.generativeai as genai
 GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
 genai.configure(api_key=GEMINI_API_KEY)
 
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
+from reportlab.lib.styles import getSampleStyleSheet
 from io import BytesIO
 
 def generate_pdf(text: str) -> BytesIO:
     buffer = BytesIO()
-    c = canvas.Canvas(buffer, pagesize=letter)
-    width, height = letter
-    lines = text.split('\n')
+    doc = SimpleDocTemplate(buffer, pagesize=letter,
+                            rightMargin=40, leftMargin=40,
+                            topMargin=40, bottomMargin=40)
     
-    y = height - 40  # Start from top
-    for line in lines:
-        if y < 40:
-            c.showPage()  # New page
-            y = height - 40
-        c.drawString(40, y, line.strip())
-        y -= 15
-    c.save()
+    styles = getSampleStyleSheet()
+    story = []
+
+    for line in text.split('\n'):
+        if line.strip():  # skip empty lines
+            para = Paragraph(line.strip(), styles["Normal"])
+            story.append(para)
+            story.append(Spacer(1, 10))  # space between lines
+
+    doc.build(story)
     buffer.seek(0)
     return buffer
+
 
 
 class GeminiLLM(LLM):
