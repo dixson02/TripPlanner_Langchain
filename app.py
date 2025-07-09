@@ -60,7 +60,7 @@ trip_prompt = PromptTemplate(
 You are a professional travel planner.
 
 Create a personalized {trip_duration}-day itinerary for a trip to {destination} for {travelers} during {travel_dates}.
-The budget is {budget}, and the traveler(s) prefer {travel_style} travel with interests including: {interests}.
+The budget is {budget} INR, and the traveler(s) prefer {travel_style} travel with interests including: {interests}.
 They prefer to stay in {accommodation_type}.
 
 Please include the following in the trip plan:
