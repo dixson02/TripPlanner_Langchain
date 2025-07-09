@@ -60,7 +60,7 @@ st.markdown("<h1 style='text-align: center;'>🌍 Plan Your Dream Trip with AI</
 st.markdown("Fill in your preferences and let AI create a tailored travel itinerary just for you! ✈️")
 
 # --- Optional Banner Image ---
-st.image("images.png", use_column_width=True)
+st.image("images.png", use_container_width=True)
 
 # --- Input Fields Layout ---
 st.markdown("## ✏️ Trip Details")
