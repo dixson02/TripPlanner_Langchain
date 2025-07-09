@@ -36,7 +36,7 @@ def generate_pdf(text: str) -> BytesIO:
 
 
 class GeminiLLM(LLM):
-model=genai.GenerativeModel('')
+
     model: any = genai.GenerativeModel('gemini-1.5-flash')
     def _call(self, prompt: str, stop: Optional[List[str]] = None) -> str:
         response = self.model.generate_content(prompt)
