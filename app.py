@@ -9,6 +9,28 @@ import google.generativeai as genai
 GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
 genai.configure(api_key=GEMINI_API_KEY)
 
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from io import BytesIO
+
+def generate_pdf(text: str) -> BytesIO:
+    buffer = BytesIO()
+    c = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
+    lines = text.split('\n')
+    
+    y = height - 40  # Start from top
+    for line in lines:
+        if y < 40:
+            c.showPage()  # New page
+            y = height - 40
+        c.drawString(40, y, line.strip())
+        y -= 15
+    c.save()
+    buffer.seek(0)
+    return buffer
+
+
 class GeminiLLM(LLM):
     model: any = genai.GenerativeModel()
     def _call(self, prompt: str, stop: Optional[List[str]] = None) -> str:
@@ -100,5 +122,14 @@ if st.button('✨ Create My Trip Plan'):
         st.success("✅ Trip Plan Ready!")
         st.markdown("### 📋 Your Personalized Itinerary")
         st.markdown(res)
+                # PDF Download
+        pdf_buffer = generate_pdf(res)
+        st.download_button(
+            label="📄 Download Trip Plan as PDF",
+            data=pdf_buffer,
+            file_name="trip_plan.pdf",
+            mime="application/pdf"
+        )
+
     else:
         st.warning("🚨 Please fill in all fields before generating your trip plan.")
