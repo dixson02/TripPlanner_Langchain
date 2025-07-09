@@ -96,7 +96,7 @@ with col1:
     travelers = st.text_input("🧑‍🤝‍🧑 Who is traveling?", "a couple")
 
 with col2:
-    budget = st.selectbox("💰 Budget", ["Low (<$1000)", "Medium ($1000–$3000)", "High (>$3000)"])
+    budget = st.text_input("💰 Budget in INR",1000)
     travel_style = st.selectbox("🧳 Travel Style", ["Relaxed", "Adventure", "Cultural", "Luxury", "Backpacking", "Scenic"])
     interests = st.text_area("🎯 Interests", "temples, nature, food, anime, local markets")
     accommodation_type = st.selectbox("🏨 Accommodation Type", [
