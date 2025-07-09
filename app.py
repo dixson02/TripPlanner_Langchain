@@ -1,12 +1,14 @@
+import streamlit as st
+from typing import Optional, List
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
-from typing import Optional,List
 from langchain_core.language_models import LLM
-# from api_keys import GEMINI_API_KEY
 import google.generativeai as genai
-import streamlit as st
-GEMINI_API_KEY=st.secrets["GEMINI_API_KEY"]
+
+# --- Configure Gemini ---
+GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
 genai.configure(api_key=GEMINI_API_KEY)
+
 class GeminiLLM(LLM):
     model: any = genai.GenerativeModel()
     def _call(self, prompt: str, stop: Optional[List[str]] = None) -> str:
@@ -16,10 +18,7 @@ class GeminiLLM(LLM):
     def _llm_type(self) -> str:
         return "gemini"
 
-
-
-from langchain.prompts import PromptTemplate
-
+# --- Prompt Template ---
 trip_prompt = PromptTemplate(
     input_variables=[
         "destination", 
@@ -49,41 +48,57 @@ Format the response in a clean, organized itinerary. Be specific and practical.
 """
 )
 
-# from model_and_prompt import trip_prompt,GeminiLLM
-# import streamlit as st
-
-# Now you can use it in LangChain
-from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain
+# --- LangChain Setup ---
 llm = GeminiLLM()
 llm_chain = LLMChain(prompt=trip_prompt, llm=llm)
-st.title('Trip Planner In Just 2 Minutes')
-if 'history' not in st.session_state:
-    st.session_state['history']=[]
-st.image('images.png')
 
-destination = st.text_input("Destination", "India")
-travel_dates = st.text_input("Travel Dates", "September 10–20, 2025")
-trip_duration = st.number_input("Trip Duration (in days)", min_value=1, max_value=30, value=10)
-budget = st.selectbox("Budget", ["Low (<$1000)", "Medium ($1000–$3000)", "High (>$3000)"])
-travel_style = st.selectbox("Travel Style", ["Relaxed", "Adventure", "Cultural", "Luxury", "Backpacking", "Scenic"])
-interests = st.text_area("Interests (comma separated)", "temples, nature, food, anime, local markets")
-travelers = st.text_input("Who is traveling?", "a couple")
-accommodation_type = st.selectbox("Accommodation Type", ["Budget hostel", "Mid-range hotel", "Luxury resort", "Traditional stays (e.g., ryokan)", "Airbnb"])
-# button=st.button('Create Plan')
-if st.button('Create Plan'):
+# --- Streamlit UI Config ---
+st.set_page_config(page_title="🌍 AI Trip Planner", page_icon="🧳", layout="centered")
+
+# --- Header ---
+st.markdown("<h1 style='text-align: center;'>🌍 Plan Your Dream Trip with AI</h1>", unsafe_allow_html=True)
+st.markdown("Fill in your preferences and let AI create a tailored travel itinerary just for you! ✈️")
+
+# --- Optional Banner Image ---
+st.image("images.png", use_column_width=True)
+
+# --- Input Fields Layout ---
+st.markdown("## ✏️ Trip Details")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    destination = st.text_input("📍 Destination", "India")
+    travel_dates = st.text_input("📅 Travel Dates", "September 10–20, 2025")
+    trip_duration = st.number_input("📆 Trip Duration (days)", min_value=1, max_value=30, value=10)
+    travelers = st.text_input("🧑‍🤝‍🧑 Who is traveling?", "a couple")
+
+with col2:
+    budget = st.selectbox("💰 Budget", ["Low (<$1000)", "Medium ($1000–$3000)", "High (>$3000)"])
+    travel_style = st.selectbox("🧳 Travel Style", ["Relaxed", "Adventure", "Cultural", "Luxury", "Backpacking", "Scenic"])
+    interests = st.text_area("🎯 Interests", "temples, nature, food, anime, local markets")
+    accommodation_type = st.selectbox("🏨 Accommodation Type", [
+        "Budget hostel", "Mid-range hotel", "Luxury resort", "Traditional stays (e.g., ryokan)", "Airbnb"
+    ])
+
+# --- Generate Button ---
+st.markdown("### 🛫 Ready to Plan?")
+if st.button('✨ Create My Trip Plan'):
     if all([destination, travel_dates, trip_duration, budget, travel_style, interests, travelers, accommodation_type]):
         input_dict = {
             "destination": destination,
             "travel_dates": travel_dates,
-            "trip_duration": str(trip_duration),  # convert to string if template expects string
+            "trip_duration": str(trip_duration),
             "budget": budget,
             "travel_style": travel_style,
             "interests": interests,
             "travelers": travelers,
             "accommodation_type": accommodation_type
         }
-        res = llm_chain.run(input_dict)
-        st.write(res)
+        with st.spinner("Generating your travel itinerary..."):
+            res = llm_chain.run(input_dict)
+        st.success("✅ Trip Plan Ready!")
+        st.markdown("### 📋 Your Personalized Itinerary")
+        st.markdown(res)
     else:
-        st.warning("Please fill in all fields.")
+        st.warning("🚨 Please fill in all fields before generating your trip plan.")
